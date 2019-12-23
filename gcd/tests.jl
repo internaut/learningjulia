@@ -12,6 +12,12 @@ using .GCD
 
     @testset "random inputs against Julia gcd impl." for i in 1:100
         a, b = rand(Int), rand(Int)
+        
+        if i % 4 == 0   # use small numbers on every 4th iteration
+            a %= 100
+            b %= 100
+        end
+
         @test gcd_euclid(a, b) == gcd(a, b)
     end
 end
@@ -29,6 +35,12 @@ end
 
     @testset "random inputs against Julia gcd impl." for i in 1:100
         a, b = rand(Int), rand(Int)
+
+        if i % 4 == 0   # use small numbers on every 4th iteration
+            a %= 100
+            b %= 100
+        end
+
         d, s, t = gcd_euclid_extended(a, b)
         @test d == gcd(a, b)
         @test d == a*s + b*t
