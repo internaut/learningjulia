@@ -6,7 +6,7 @@ export gcd_euclid, gcd_euclid_extended
 Simple greatest common divisor (gcd) calculation of integers `a` and `b` using
 the Euclidian algorithm.
 """
-function gcd_euclid(a::Integer, b::Integer)
+function gcd_euclid(a::Integer, b::Integer)::Unsigned
     a == 0 && b == 0 && return 0
 
     if a == 0    # swap
@@ -33,7 +33,7 @@ Extended greatest common divisor (gcd) calculation of integers `a` and `b` using
 the Euclidian algorithm. This function returns a tuple with integers `d, s, t`
 such that `d = gcd(a, b) = a*s + b*t`.
 """
-function gcd_euclid_extended(a::Integer, b::Integer)
+function gcd_euclid_extended(a::Integer, b::Integer)::NTuple{3, Integer}
     a == 0 && b == 0 && return 0, 0, 0
 
 
