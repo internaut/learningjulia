@@ -1,17 +1,45 @@
-"""
-Residue class ā in ring ℤ modulo nℤ
-"""
-struct RClass
-    a::Unsigned   # must be in [0, n-1]
-    n::Unsigned   # must be > 1
+module ResidueClasses
 
-    function RClass(a, n)
-        if n < 2
-            error("n must be > 1")
+import Base: +, -, *
+
+"""
+Residue class ā in ring ℤ modulo Nℤ
+"""
+struct RClass{N}
+    a::Unsigned   # must be in [0, N-1]
+
+    function RClass{N}(a) where {N}
+        error("`a` must be an Integer type")
+    end
+
+    function RClass{N}(a::Integer) where {N}
+        if N < 2
+            error("N must be > 1")
         end
 
-        new(a % n, n)
+        new(mod(a, N))
     end
 end
 
-Base.show(io::IO, r::RClass) = print(io, r.a, " in ℤ/", r.n, "ℤ")
+# string representation
+
+Base.show(io::IO, r::RClass{N}) where {N} = print(io, r.a, " in ℤ/", N, "ℤ")
+
+# unary arithmetic operators
+
++(x::RClass{N}) where {N} = RClass{N}(x.a)
+-(x::RClass{N}) where {N} = RClass{N}(-Int(x.a))
+
+# TODO: inv() and helper hasinv()
+
+# binary arithmetic operators
+
++(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}(x.a + y.a)
+-(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}(x.a + (-y).a)
+*(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}(x.a * y.a)
+
+# TODO: / as x*inv(y)
+
+# TODO binary comparison operators
+
+end
