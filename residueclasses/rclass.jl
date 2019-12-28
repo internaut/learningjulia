@@ -1,6 +1,8 @@
 module ResidueClasses
 
-import Base: +, -, *
+export RClass, +, -, *, /, inv, hasinv, ^, ==, <=, <, >=, >
+
+import Base: +, -, *, /, inv, ^, ==, <=, <, >=, >
 
 """
 Residue class ā in ring ℤ modulo Nℤ
@@ -13,8 +15,8 @@ struct RClass{N}
     end
 
     function RClass{N}(a::Integer) where {N}
-        if N < 2
-            error("N must be > 1")
+        if !(typeof(N) <: Integer) || N < 2
+            error("N must be integer > 1")
         end
 
         new(mod(a, N))
@@ -30,16 +32,36 @@ Base.show(io::IO, r::RClass{N}) where {N} = print(io, r.a, " in ℤ/", N, "ℤ")
 +(x::RClass{N}) where {N} = RClass{N}(x.a)
 -(x::RClass{N}) where {N} = RClass{N}(-Int(x.a))
 
-# TODO: inv() and helper hasinv()
+"Returns `true` when residual class `x` has inverse, otherwise `false`."
+hasinv(x::RClass{N}) where {N} = gcd(x.a, N) == 1
+
+function inv(x::RClass{N})::RClass{N} where {N}
+    @assert 0 <= x.a < N
+
+    d, s, t = gcdx(Int(x.a), N)
+    d == 1 || error("residual class ", x, " has no inverse")
+
+    modinv = s - fld(s, N) * N   # normalize
+    @assert 0 <= modinv < N
+
+    RClass{N}(modinv)
+end
 
 # binary arithmetic operators
 
 +(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}(x.a + y.a)
 -(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}(x.a + (-y).a)
 *(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}(x.a * y.a)
+/(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}((x * inv(y)).a)
+# TODO: fix test for this:
+^(x::RClass{N}, y::Integer) where {N} = y >= 0 ? RClass{N}(x.a ^ y) : inv(RClass{N}(x.a ^ abs(y)))
 
-# TODO: / as x*inv(y)
-
-# TODO binary comparison operators
+# comparison operators
+# TODO: implement tests for these
+==(x::RClass{N}, y::RClass{N}) where {N} = x.a == y.a
+<=(x::RClass{N}, y::RClass{N}) where {N} = x.a <= y.a
+<(x::RClass{N}, y::RClass{N}) where {N} = x.a < y.a
+>=(x::RClass{N}, y::RClass{N}) where {N} = x.a >= y.a
+>(x::RClass{N}, y::RClass{N}) where {N} = x.a > y.a
 
 end
