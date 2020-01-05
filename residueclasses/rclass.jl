@@ -1,8 +1,8 @@
 module ResidueClasses
 
-export RClass, +, -, *, /, inv, hasinv, ^, ==, <=, <, >=, >
+export RClass, +, -, *, /, inv, hasinv, ^, ==, !=, <=, <, >=, >
 
-import Base: +, -, *, /, inv, ^, ==, <=, <, >=, >
+import Base: +, -, *, /, inv, ^, ==, !=, <=, <, >=, >
 
 """
 Residue class ā in ring ℤ modulo Nℤ
@@ -53,12 +53,11 @@ end
 -(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}(x.a + (-y).a)
 *(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}(x.a * y.a)
 /(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}((x * inv(y)).a)
-# TODO: fix test for this:
 ^(x::RClass{N}, y::Integer) where {N} = y >= 0 ? RClass{N}(x.a ^ y) : inv(RClass{N}(x.a ^ abs(y)))
 
 # comparison operators
-# TODO: implement tests for these
 ==(x::RClass{N}, y::RClass{N}) where {N} = x.a == y.a
+!=(x::RClass{N}, y::RClass{N}) where {N} = x.a != y.a
 <=(x::RClass{N}, y::RClass{N}) where {N} = x.a <= y.a
 <(x::RClass{N}, y::RClass{N}) where {N} = x.a < y.a
 >=(x::RClass{N}, y::RClass{N}) where {N} = x.a >= y.a

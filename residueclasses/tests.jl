@@ -30,7 +30,7 @@ end
     @test inv(z).a == 2
 
     @testset "random inputs for unary arithmetic operators" for i = 1:100
-        a = rand(1:1000)
+        a = rand(0:1000)
         N = rand(2:100)
         z = RClass{N}(a)
 
@@ -66,8 +66,8 @@ end
 
     @testset "random inputs for binary arithmetic operators" for i = 1:100
         N = rand(2:100)
-        x = RClass{N}(rand(1:100))
-        y = RClass{N}(rand(1:100))
+        x = RClass{N}(rand(0:100))
+        y = RClass{N}(rand(0:100))
 
         @test 0 <= (x + y).a == (y + x).a < N
         @test 0 <= (x - y).a == (-(y - x)).a < N
@@ -87,33 +87,80 @@ end
             @test 0 <= (x / y).a == (x * y_inv).a < N
         else
             y_inv = missing
-            @test_throws ErrorException inv(x)
+            @test_throws ErrorException inv(y)
         end
 
         if !(ismissing(x_inv) || ismissing(y_inv))
             @test (x / y).a == inv((y / x)).a
         end
 
-        # TODO: fix this test
-        # for p = -5:5
-        #     if p == 0
-        #         z = RClass{N}(1)
-        #     else
-        #         z = RClass{N}(x.a)
-        #         for j = 1:abs(p)
-        #             z *= z
-        #         end
-        #     end
-        #
-        #     if p < 0
-        #         if hasinv(x)
-        #             @test (x^p).a == inv(z).a
-        #         else
-        #             @test_throws ErrorException x^p
-        #         end
-        #     else
-        #         @test (x^p).a == z.a
-        #     end
-        # end
+        for p = -5:5
+            if p == 0
+                z = RClass{N}(1)
+            else
+                z = RClass{N}(x.a)
+                for j = 2:abs(p)
+                    z = z * x
+                end
+            end
+
+            if p < 0
+                if hasinv(x)
+                    @test (x^p).a == inv(z).a
+                else
+                    @test_throws ErrorException x^p
+                end
+            else
+                @test (x^p).a == z.a
+            end
+        end
+    end
+end
+
+
+@testset "RClass comparison operators" begin
+    # comparison must happen in same ring (i.e. N must be the same)
+    # TODO: the following two tests should throw an error, but they don't!
+    #@test_throws MethodError RClass{2}(0) == RClass{3}(0)
+    #@test_throws MethodError RClass{2}(0) != RClass{3}(0)
+    @test_throws MethodError RClass{2}(0) <= RClass{3}(0)
+    @test_throws MethodError RClass{2}(0) < RClass{3}(0)
+    @test_throws MethodError RClass{2}(0) >= RClass{3}(0)
+    @test_throws MethodError RClass{2}(0) > RClass{3}(0)
+
+    x = RClass{3}(2)
+    y = RClass{3}(2)
+    z = RClass{3}(1)
+
+    @test x == y
+    @test x != z
+    @test !(x == z)
+    @test !(x != y)
+    @test x <= y
+    @test z <= x
+    @test z < x
+    @test x >= y
+    @test x >= z
+    @test x > z
+
+    @testset "random inputs for binary arithmetic operators" for i = 1:100
+        N = rand(2:100)
+        x = RClass{N}(rand(0:100))
+        y = RClass{N}(rand(0:100))
+        z = RClass{N}(rand(0:100))
+
+        @test x == x && y == y && z == z
+
+        if x == y
+            @test y == x && x <= y && y <= x && x >= y && y >= x
+            x == z && @test y == z
+        else
+            @test x != y && y != x
+            @test x < y || x > y
+            x < y && @test y > x
+            x > y && @test y < x
+            x < y < z && @test x < z
+            x > y > z && @test x > z
+        end
     end
 end
