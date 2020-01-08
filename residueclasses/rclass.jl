@@ -1,8 +1,9 @@
 module ResidueClasses
 
-export RClass, +, -, *, /, inv, hasinv, ^, ==, !=, <=, <, >=, >
+export RClass, +, -, *, /, inv, hasinv, ^, ==, !=, <=, <, >=, >, table
 
 import Base: +, -, *, /, inv, ^, ==, !=, <=, <, >=, >
+using Cairo
 
 """
 Residue class ā in ring ℤ modulo Nℤ
@@ -63,4 +64,42 @@ end
 >=(x::RClass{N}, y::RClass{N}) where {N} = x.a >= y.a
 >(x::RClass{N}, y::RClass{N}) where {N} = x.a > y.a
 
+# other functions
+
+"""
+Make a table for applying operation `op` to all elements in residue ring ℤ/`N`ℤ.
+This makes most sense for multiplication or addition tables, i.e. passing `*`
+or `+` as `op`.
+Returns a `N`x`N` integer array. Each row and column represents a residue class
+for 0 to `N-1` and each cell is hence the result of the operation applied to
+the respective residue classes.
+You can visualize the result with `visualize_table()`.
+"""
+function table(N::Integer, op::Function=*)::Array{Integer, 2}  # TODO: tests
+    N < 2 && error("N must be integer > 1")
+
+    x = 0:(N-1)
+    rclasses = map(RClass{N}, x)
+
+    table = Array{RClass{N}}(undef, N, N)
+
+    for i in axes(table, 1), j in axes(table, 2)
+        table[i, j] = op(rclasses[i], rclasses[j])
+    end
+
+
+    map(r -> Int(r.a), table)
 end
+
+# for instances of RClass
+table(::RClass{N}, op::Function=*) where {N} = table(N, op)
+# for RClass types
+table(::Type{RClass{N}}, op::Function=*) where {N} = table(N, op)
+
+function visualize_table(tab::Array{Integer, 2}, imgw=256, imgh=256)::CairoSurface
+    # TODO
+end
+
+visualize_table(N::Integer, op::Function=*, imgw=256, imgh=256) = visualize_table(table(N, op), imgw=imgw, imgh=imgh)
+visualize_table(::RClass{N}, op::Function=*, imgw=256, imgh=256) where {N} = visualize_table(table(N, op), imgw=imgw, imgh=imgh)
+visualize_table(::Type{RClass{N}}, op::Function=*, imgw=256, imgh=256) where {N} = visualize_table(table(N, op), imgw=imgw, imgh=imgh)
