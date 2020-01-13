@@ -164,3 +164,21 @@ end
         end
     end
 end
+
+
+@testset "table" begin
+    @test_throws ErrorException table(-1)
+    @test_throws ErrorException table(0)
+    @test_throws ErrorException table(1)
+    @test table(3, *) == [[0 0 0]; [0 1 2]; [0 2 1]]
+    @test table(3, +) == [[0 1 2]; [1 2 0]; [2 0 1]]
+
+    @testset "random inputs for multiplication table" for i = 1:50, op in (+, *)
+        N = rand(2:20)
+        res = table(N, op)
+        @test res == table(RClass{N}, op) == table(RClass{N}(0), op)
+        @test isa(res, Array{Integer,2})
+        @test size(res) == (N, N)
+        @test all(i -> 0 <= i < N, res)
+    end
+end
