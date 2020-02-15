@@ -1,10 +1,17 @@
 module ColorMaps
 
+export generate_colormap, visualize_cmap
+
 using Cairo
 
 include("vishelpers.jl")
 
-# from: https://github.com/BIDS/colormap/blob/master/colormaps.py
+# Viridis colormap data as 256x3 array
+#
+# taken from "New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
+# and Eric Firing", (see https://bids.github.io/colormap/ and
+# https://github.com/BIDS/colormap/)
+
 viridis_data =  [[0.267004 0.004874 0.329415]
                  [0.268510 0.009605 0.335427]
                  [0.269944 0.014625 0.341379]

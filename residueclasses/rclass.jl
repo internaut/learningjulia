@@ -5,7 +5,9 @@ export RClass, +, -, *, /, inv, hasinv, ^, ==, !=, <=, <, >=, >, table, visualiz
 import Base: +, -, *, /, inv, ^, ==, !=, <=, <, >=, >
 using Cairo
 
+include("../cmap.jl")
 include("../vishelpers.jl")
+using .ColorMaps
 
 
 """
@@ -118,17 +120,22 @@ table(::Type{RClass{N}}, op::Function=*) where {N} = table(N, op)
 Visualize a residue class multiplication or addition table (label it by `op_str`) `tab` on image
 of size `imgw`x`imgh` pixels.
 """
-function visualize_table(tab::Array{Integer, 2}, op_str::AbstractString; imgw::Integer=256, imgh::Integer=256)::CairoSurface
+function visualize_table(tab::Array{Integer, 2}, op_str::AbstractString;
+                         imgw::Integer=256, imgh::Integer=256,
+                         gray::Bool=false, drawlabels::Bool=true,
+                         startnum::Integer=0)::CairoSurface
     dim1, dim2 = size(tab)
     dim1 == dim2 || error("`tab` must be quadratic")
     N = dim1
+    0 <= startnum < N || error("`startnum` must be a zero or positive number lesser than `N` (i.e. number of rows/columns in `tab`)")
 
     # create surface and context
     surface = CairoRGBSurface(imgw, imgh)
     context = CairoContext(surface)
 
-    cellw = imgw / (N+1)
-    cellh = imgh / (N+1)
+    ncells = N + Int(drawlabels) - startnum
+    cellw = imgw / ncells
+    cellh = imgh / ncells
 
     set_font_size(context, cellw / 3)
 
@@ -139,21 +146,27 @@ function visualize_table(tab::Array{Integer, 2}, op_str::AbstractString; imgw::I
     fill(context)
     restore(context)
 
-    colormap = Dict(
-        0 => (0.0, 0.0, 0.0),
-        1 => (1.0, 1.0, 1.0),
-        Nothing => (0.5, 0.5, 0.5)
-    )
+    if gray
+        colormap = Dict(
+            0 => (0.0, 0.0, 0.0),
+            1 => (1.0, 1.0, 1.0),
+            nothing => (0.5, 0.5, 0.5)
+        )
+    else
+        colormap = generate_colormap(N)
+    end
 
-    select_font_face(context, "Sans", Cairo.FONT_SLANT_NORMAL, Cairo.FONT_WEIGHT_BOLD)
+    if drawlabels
+        select_font_face(context, "Sans", Cairo.FONT_SLANT_NORMAL, Cairo.FONT_WEIGHT_BOLD)
 
-    # draw table row and column labels
-    for i in 0:N
-        if i == 0
-            draw_string_centered(context, op_str, cellw / 2, cellh / 2)
-        else
-            draw_string_centered(context, string(i - 1), i * cellw + cellw / 2, cellh / 2)
-            draw_string_centered(context, string(i - 1), cellw / 2, i * cellh + cellh / 2)
+        # draw table row and column labels
+        for i in startnum:N
+            if i == startnum
+                draw_string_centered(context, op_str, cellw / 2, cellh / 2)
+            else
+                draw_string_centered(context, string(i - 1), (i-startnum) * cellw + cellw / 2, cellh / 2)
+                draw_string_centered(context, string(i - 1), cellw / 2, (i-startnum) * cellh + cellh / 2)
+            end
         end
     end
 
@@ -161,12 +174,21 @@ function visualize_table(tab::Array{Integer, 2}, op_str::AbstractString; imgw::I
 
     # draw table cells
     for i in axes(tab, 1), j in axes(tab, 2)
+        if i <= startnum || j <= startnum
+            continue
+        end
+
         save(context)
 
         val = tab[i, j]
-        col = val < 2 ? colormap[val] : colormap[Nothing]
+        if gray
+            col = val < 2 ? colormap[val] : colormap[nothing]
+        else
+            col = colormap[val+1, :]
+        end
 
-        posx, posy = i * cellw, j * cellh
+        offset = Int(drawlabels) - startnum - 1
+        posx, posy = (i+offset) * cellw, (j+offset) * cellh
 
         # draw colored cell background
         set_source_rgb(context, col...)
@@ -174,13 +196,15 @@ function visualize_table(tab::Array{Integer, 2}, op_str::AbstractString; imgw::I
         fill(context)
 
         # draw value
-        if sum(col) / 3 < 0.3
-            set_source_rgb(context, 1, 1, 1)
-        else
-            set_source_rgb(context, 0, 0, 0)
-        end
+        if drawlabels
+            if sum(col) / 3 < 0.3
+                set_source_rgb(context, 1, 1, 1)
+            else
+                set_source_rgb(context, 0, 0, 0)
+            end
 
-        draw_string_centered(context, string(val), posx + cellw/2, posy + cellh/2)
+            draw_string_centered(context, string(val), posx + cellw/2, posy + cellh/2)
+        end
 
         restore(context)
     end
@@ -188,9 +212,12 @@ function visualize_table(tab::Array{Integer, 2}, op_str::AbstractString; imgw::I
     surface
 end
 
-visualize_table(N::Integer, op::Function=*; imgw=256, imgh=256) = visualize_table(table(N, op), string(op), imgw=imgw, imgh=imgh)
-visualize_table(::RClass{N}, op::Function=*; imgw=256, imgh=256) where {N} = visualize_table(table(N, op), string(op), imgw=imgw, imgh=imgh)
-visualize_table(::Type{RClass{N}}, op::Function=*; imgw=256, imgh=256) where {N} = visualize_table(table(N, op), string(op), imgw=imgw, imgh=imgh)
+visualize_table(N::Integer, op::Function=*; imgw=256, imgh=256, gray=false, drawlabels=true, startnum=0) =
+    visualize_table(table(N, op), string(op), imgw=imgw, imgh=imgh, gray=gray, drawlabels=drawlabels, startnum=startnum)
+visualize_table(::RClass{N}, op::Function=*; imgw=256, imgh=256, gray=false, drawlabels=true, startnum=0) where {N} =
+    visualize_table(table(N, op), string(op), imgw=imgw, imgh=imgh, gray=gray, drawlabels=drawlabels, startnum=startnum)
+visualize_table(::Type{RClass{N}}, op::Function=*; imgw=256, imgh=256, gray=false, drawlabels=true, startnum=0) where {N} =
+    visualize_table(table(N, op), string(op), imgw=imgw, imgh=imgh, gray=gray, drawlabels=drawlabels, startnum=startnum)
 
 
 end
