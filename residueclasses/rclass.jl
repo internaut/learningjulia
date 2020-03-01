@@ -115,10 +115,13 @@ table(::RClass{N}, op::Function=*) where {N} = table(N, op)
 table(::Type{RClass{N}}, op::Function=*) where {N} = table(N, op)
 
 """
-    visualize_table(tab::Array{Integer, 2}, op_str::AbstractString; imgw::Integer=256, imgh::Integer=256)
+    visualize_table(tab::Array{Integer, 2}, op_str::AbstractString;
+                             imgw::Integer=256, imgh::Integer=256,
+                             gray::Bool=false, drawlabels::Bool=true,
+                             startnum::Integer=0)
 
-Visualize a residue class multiplication or addition table (label it by `op_str`) `tab` on image
-of size `imgw`x`imgh` pixels.
+Visualize a residue class multiplication or addition table (label it by `op_str`) `tab` on
+image size `imgw`x`imgh` pixels.
 """
 function visualize_table(tab::Array{Integer, 2}, op_str::AbstractString;
                          imgw::Integer=256, imgh::Integer=256,
@@ -127,7 +130,8 @@ function visualize_table(tab::Array{Integer, 2}, op_str::AbstractString;
     dim1, dim2 = size(tab)
     dim1 == dim2 || error("`tab` must be quadratic")
     N = dim1
-    0 <= startnum < N || error("`startnum` must be a zero or positive number lesser than `N` (i.e. number of rows/columns in `tab`)")
+    0 <= startnum < N || error("`startnum` must be a zero or positive number lesser than `N`
+                                (i.e. number of rows/columns in `tab`)")
 
     # create surface and context
     surface = CairoRGBSurface(imgw, imgh)
@@ -164,8 +168,10 @@ function visualize_table(tab::Array{Integer, 2}, op_str::AbstractString;
             if i == startnum
                 draw_string_centered(context, op_str, cellw / 2, cellh / 2)
             else
-                draw_string_centered(context, string(i - 1), (i-startnum) * cellw + cellw / 2, cellh / 2)
-                draw_string_centered(context, string(i - 1), cellw / 2, (i-startnum) * cellh + cellh / 2)
+                draw_string_centered(context, string(i - 1),
+                                    (i-startnum) * cellw + cellw / 2, cellh / 2)
+                draw_string_centered(context, string(i - 1),
+                                    cellw / 2, (i-startnum) * cellh + cellh / 2)
             end
         end
     end
@@ -212,12 +218,18 @@ function visualize_table(tab::Array{Integer, 2}, op_str::AbstractString;
     surface
 end
 
-visualize_table(N::Integer, op::Function=*; imgw=256, imgh=256, gray=false, drawlabels=true, startnum=0) =
-    visualize_table(table(N, op), string(op), imgw=imgw, imgh=imgh, gray=gray, drawlabels=drawlabels, startnum=startnum)
-visualize_table(::RClass{N}, op::Function=*; imgw=256, imgh=256, gray=false, drawlabels=true, startnum=0) where {N} =
-    visualize_table(table(N, op), string(op), imgw=imgw, imgh=imgh, gray=gray, drawlabels=drawlabels, startnum=startnum)
-visualize_table(::Type{RClass{N}}, op::Function=*; imgw=256, imgh=256, gray=false, drawlabels=true, startnum=0) where {N} =
-    visualize_table(table(N, op), string(op), imgw=imgw, imgh=imgh, gray=gray, drawlabels=drawlabels, startnum=startnum)
+visualize_table(N::Integer, op::Function=*; imgw=256, imgh=256, gray=false,
+                drawlabels=true, startnum=0) =
+    visualize_table(table(N, op), string(op), imgw=imgw, imgh=imgh, gray=gray,
+                    drawlabels=drawlabels, startnum=startnum)
+visualize_table(::RClass{N}, op::Function=*; imgw=256, imgh=256, gray=false,
+                    drawlabels=true, startnum=0) where {N} =
+    visualize_table(table(N, op), string(op), imgw=imgw, imgh=imgh, gray=gray,
+                    drawlabels=drawlabels, startnum=startnum)
+visualize_table(::Type{RClass{N}}, op::Function=*; imgw=256, imgh=256, gray=false,
+                drawlabels=true, startnum=0) where {N} =
+    visualize_table(table(N, op), string(op), imgw=imgw, imgh=imgh, gray=gray,
+                    drawlabels=drawlabels, startnum=startnum)
 
 
 end
