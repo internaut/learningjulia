@@ -49,15 +49,19 @@ a == 0 && b == 0 && return 0
 - for loop construct can iterate over any container
 - equivalent:
 
-    for i = <container> ... end
-    for i in <container> ... end
-    for i ∈ <container> ... end
+```julia
+for i = <container> ... end
+for i in <container> ... end
+for i ∈ <container> ... end
+```
 
 - nested for loops can be combined into a single outer loop, forming the cartesian product of its iterables:
 
-    for i = 1:2, j = 3:4
-        println((i, j))
-    end
+```julia
+for i = 1:2, j = 3:4
+    println((i, j))
+end
+```
 
 ### Exceptions
 
@@ -77,9 +81,9 @@ a == 0 && b == 0 && return 0
 - modules can contain submodules, e.g. `Main.MyMod`
 - module loading quite slow:
 
-  "Large modules can take several seconds to load because executing all of the statements in a module often involves compiling a large amount of code. Julia creates precompiled caches of the module to reduce this time."
-
-  https://docs.julialang.org/en/v1/manual/modules/#Module-initialization-and-precompilation-1
+> "Large modules can take several seconds to load because executing all of the statements in a module often involves compiling a large amount of code. Julia creates precompiled caches of the module to reduce this time."
+>
+> -- https://docs.julialang.org/en/v1/manual/modules/#Module-initialization-and-precompilation-1
 
 
 ## Types in general
@@ -114,17 +118,21 @@ a == 0 && b == 0 && return 0
 
 - introduce new type consisting of fields
 
-    struct Foo
-        bar
-        baz::Int
-        qux::Float64
-    end
+```julia
+struct Foo
+    bar
+    baz::Int
+    qux::Float64
+end
+```
 
 - by default not mutable; prepend `mutable` to change that
 - parametric composite types: `struct Foo{T} field::T end` makes `Foo` parametric by type `T`
 - when using parametric types in function, `where` keyword must be used (here with short function definition):
 
-    hasinv(x::RClass{N}) where {N} = gcd(x.a, N) == 1
+```julia
+hasinv(x::RClass{N}) where {N} = gcd(x.a, N) == 1
+```
 
 ### Composite type constructors
 
@@ -139,7 +147,9 @@ a == 0 && b == 0 && return 0
 
 - create string representation for "pretty printing" by defining method of `Base.show` for new type, e.g.
 
-    Base.show(io::IO, foo::Foo) = print(io, "a Foo object with bar = ", foo.bar)
+```julia
+Base.show(io::IO, foo::Foo) = print(io, "a Foo object with bar = ", foo.bar)
+```
 
 ### Tuples, Arrays and other sequence types
 
@@ -161,21 +171,25 @@ a == 0 && b == 0 && return 0
 - array comprehensions like list comprehensions in Python possible: `[x^2 for x in 1:5]`
 - multidimensional array creation: `;` or new line creates new row, space *without comma* creates new element *in row*:
 
-    julia> [1 2 3]
-    1×3 Array{Int64,2}:
-    1  2  3
-    
-    julia> [[1 2 3]; [4 5 6]]
-    2×3 Array{Int64,2}:
-    1  2  3
-    4  5  6
+```
+julia> [1 2 3]
+1×3 Array{Int64,2}:
+1  2  3
+
+julia> [[1 2 3]; [4 5 6]]
+2×3 Array{Int64,2}:
+1  2  3
+4  5  6
+```
 
 - however, `,` creates nested arrays or *vectors* (compare types!):
 
-    julia> [[1 2 3], [4 5 6]]
-    2-element Array{Array{Int64,2},1}:
-    [1 2 3]
-    [4 5 6]
+```julia
+julia> [[1 2 3], [4 5 6]]
+2-element Array{Array{Int64,2},1}:
+[1 2 3]
+[4 5 6]
+```
 
 - `Vector{T}` is array with single dimension
 - `eltype(arr)` gives element type
@@ -213,9 +227,11 @@ a == 0 && b == 0 && return 0
 - *methods* are specialized functions for specific argument type configurations
 - e.g. three methods for function `f`:
 
-    f(a::Any, b::Any)           # most general: accepts any types of a, b
-    f(a::Real, b::Integer)      # more specific: accepts real a and integer b
-    f(a::Integer, b::Integer)   # more specific: both a and b must be ints
+```julia
+f(a::Any, b::Any)           # most general: accepts any types of a, b
+f(a::Real, b::Integer)      # more specific: accepts real a and integer b
+f(a::Integer, b::Integer)   # more specific: both a and b must be ints
+```
 
 - short function definitions with `=`: `f(x) = x^2`
 - arithmetic / comparison operators like `+`, `==` are simply functions which can be specialized for new types
@@ -236,15 +252,17 @@ a == 0 && b == 0 && return 0
 - define assertion about exception via `@test_throws`
 - template:
 
-    using Test: @test, @testset, @test_throws
+```julia
+using Test: @test, @testset, @test_throws
 
-    include("mycode.jl")
-    using .MyModule
+include("mycode.jl")
+using .MyModule
 
-    @testset "MyTestset" begin
-        @test myfunc(2) == 5
-        @test_throws ErrorException myfunc(-1)
-    end
+@testset "MyTestset" begin
+    @test myfunc(2) == 5
+    @test_throws ErrorException myfunc(-1)
+end
+```
 
 - apparently no *property based testing* (like Python hypothesis package) available
 - run tests by including test file(s)
@@ -255,6 +273,6 @@ a == 0 && b == 0 && return 0
 - above function / type / module as multiline string block
 - markdown support
 
-  "Always show the signature of a function at the top of the documentation, with a four-space indent so that it is printed as Julia code."
-
-  https://docs.julialang.org/en/v1/manual/documentation/
+> "Always show the signature of a function at the top of the documentation, with a four-space indent so that it is printed as Julia code."
+>
+> https://docs.julialang.org/en/v1/manual/documentation/
