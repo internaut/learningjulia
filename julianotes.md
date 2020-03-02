@@ -22,19 +22,23 @@ Author: Markus Konrad <post@mkonrad.net>
 - comments with `#`
 - code blocks are introduced *without* `:` / indentation doesn't matter / `end` ends block
 
-    begin
-        ...
-    end
-    
-    if x == y    # no ":" here!
-        ...
-    end
+```julia
+begin
+    ...
+end
+
+if x == y    # no ":" here!
+    ...
+end
+```
 
 - conditions with `&&` and `||`
 - short-circuit evaluation often used:
 
-    a == 0 && b == 0 && return 0
-    0 <= x < N || error("x must be in [0, N)")
+```julia
+a == 0 && b == 0 && return 0
+0 <= x < N || error("x must be in [0, N)")
+```
 
 - `elseif` instead `elif`
 - ternary operator: `x = a ? b : c`
