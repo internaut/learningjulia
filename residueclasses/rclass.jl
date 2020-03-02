@@ -70,7 +70,8 @@ end
 -(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}(x.a + (-y).a)
 *(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}(x.a * y.a)
 /(x::RClass{N}, y::RClass{N}) where {N} = RClass{N}((x * inv(y)).a)
-^(x::RClass{N}, y::Integer) where {N} = y >= 0 ? RClass{N}(x.a ^ y) : inv(RClass{N}(x.a ^ abs(y)))
+^(x::RClass{N}, y::Integer) where {N} = y >= 0 ?
+    RClass{N}(x.a ^ y) : inv(RClass{N}(x.a ^ abs(y)))
 
 # comparison operators
 ==(x::RClass{N}, y::RClass{N}) where {N} = x.a == y.a
