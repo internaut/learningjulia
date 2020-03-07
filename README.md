@@ -25,7 +25,7 @@ Each project also contains automated tests in a `tests.jl` file.
 
 For most projects, I provide a [Jupyter notebook](https://jupyter.org/) that shows how to use the implemented functions and types:
 
-- [`residueclasses.ipynb`](residueclasses.ipynb):
+- [`residueclasses.ipynb`](residueclasses.ipynb)
 
 
 ## License
