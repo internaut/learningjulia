@@ -6,6 +6,8 @@ Author: Markus Konrad <post@mkonrad.net>
 
 This repository contains code for some small projects that I implement with the programming language [Julia](https://julialang.org/) in order to learn that language. It's an ongoing effort.
 
+I also keep notes on what I learn about JuliaLang especially regarding differences to Python and R in [julianotes.md](julianotes.md).
+
 ## Requirements
 
 - Julia 1.3 with the following packages:
@@ -31,4 +33,3 @@ For most projects, I provide a [Jupyter notebook](https://jupyter.org/) that sho
 ## License
 
 The source-code is provided under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0) (see `LICENSE` file).
- 
