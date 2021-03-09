@@ -86,6 +86,22 @@ end
 > -- https://docs.julialang.org/en/v1/manual/modules/#Module-initialization-and-precompilation-1
 
 
+## Variables and scope
+
+### Names
+
+> In the Julia REPL and several other Julia editing environments, you can type many Unicode math symbols by typing the backslashed LaTeX symbol name followed by tab. For example, the variable name δ can be entered by typing \delta-tab ...
+
+
+### Deleting a variable from memory
+
+- not possible: https://docs.julialang.org/en/v1/manual/faq/#How-do-I-delete-an-object-in-memory?
+
+> Julia does not have an analog of MATLAB's clear function; once a name is defined in a Julia session (technically, in module Main), it is always present.
+
+> If memory usage is your concern, you can always replace objects with ones that consume less memory. For example, if A is a gigabyte-sized array that you no longer need, you can free the memory with A = nothing. The memory will be released the next time the garbage collector runs; you can force this to happen with gc(). Moreover, an attempt to use A will likely result in an error, because most methods are not defined on type Nothing.
+
+
 ## Types in general
 
 - `::` operator can be used to attach type annotations to expressions and variables in programs
@@ -170,6 +186,7 @@ Base.show(io::IO, foo::Foo) = print(io, "a Foo object with bar = ", foo.bar)
 - short form of creation with square brackets: `[1, 2, 3]` creates integer array with one dimension (`Array{Int64,1}`)
 - array comprehensions like list comprehensions in Python possible: `[x^2 for x in 1:5]`
 - multidimensional array creation: `;` or new line creates new row, space *without comma* creates new element *in row*:
+- multidimensional array comprehensions: `[i == j for i = 1:5, j = 1:5]` creates 5x5 identity matrix
 
 ```
 julia> [1 2 3]
@@ -276,3 +293,29 @@ end
 > "Always show the signature of a function at the top of the documentation, with a four-space indent so that it is printed as Julia code."
 >
 > https://docs.julialang.org/en/v1/manual/documentation/
+
+
+## Notebooks
+
+
+### Jupyter Notebooks
+
+- works with Julia using https://github.com/JuliaLang/IJulia.jl
+
+
+### Pluto.jl
+
+- possibly better alternative (saved as plain .jl files!)
+- currently (March 2021) "very beta":
+  - few docs
+  - hard to find out how to make a text (md) only cell: type `md"""..."""`
+  - `include` and `using` don't really work
+
+
+
+
+
+
+
+
+
