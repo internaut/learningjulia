@@ -41,7 +41,7 @@ a == 0 && b == 0 && return 0
 ```
 
 - `elseif` instead `elif`
-- ternary operator: `x = a ? b : c`
+- ternary operator: `x == a ? b : c`
 - assertions with macro `@assert <condition>`
 
 ### for loops
@@ -253,6 +253,29 @@ f(a::Integer, b::Integer)   # more specific: both a and b must be ints
 - short function definitions with `=`: `f(x) = x^2`
 - arithmetic / comparison operators like `+`, `==` are simply functions which can be specialized for new types
 
+- generic type parameter is also possible with keyword `where`
+- type conditions are possible via `<:`
+
+```julia
+f(x::T) where {T} = x
+f(x::T) where {T<:Real} = 2 * x
+f(x::T) where {T<:Integer} = 3 * x
+f(x::T) where {T<:Vector} = 4 * x
+```
+
+- the above will handle different types of `x` differently:
+    - real values will be multiplied by 2
+    - integer values will be multiplied by 3
+    - vectors (that hold any type) values will be multiplied by 4
+    - all other input types for `x` will remain unchanged (first function)
+- a type can be passed via `Type{...}` as parameter:
+
+```julia
+f(n, t::Type{T}) where {T<:Vector} = repeat([convert(eltype(t), 0)], n)
+f(n, t::Type{T}) where {T<:Matrix} = repeat([convert(eltype(t), 0)], n^2)
+```
+
+- the first method handles vectors (e.g. `f(2, Vector{Int8})`), the second matrices (e.g. `f(2, Matrix{Int8})`) and generates the output vector either of size `n` or `n^2` and with an element type depending on element type of the vector/matrix
 
 ## Randomness
 
@@ -310,12 +333,3 @@ end
   - few docs
   - hard to find out how to make a text (md) only cell: type `md"""..."""`
   - `include` and `using` don't really work
-
-
-
-
-
-
-
-
-
