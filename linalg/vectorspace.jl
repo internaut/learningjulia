@@ -1,26 +1,27 @@
 module VecSpace
 
-struct Vectorspace{T, N}
-    basis::Vector{T}   # TODO: change constructors
+struct Vectorspace{T}   # type T
+    basis::Vector{T}
+    dimension::Integer
 
-    function Vectorspace{T, N}() where {T, N}
-        new(identitymatrix(N, T))
+    function Vectorspace{T}(n::Integer) where {T}
+        n > 0 || error("`n` must be greater than 0")
+        b = identitybasis(n, T)
+        d = size(b)[1]
+        d > 0 || error("invalid generated identity basis")
+        new(b, d)
     end
 
-    function Vectorspace{T, N}(basismatrix) where {T, N}
-        eltype(basismatrix) == T || error("basis matrix must be of type ", T)
-        ndims(basismatrix) == 2 || error("basis matrix must be two-dimensional")
-        n = size(basismatrix)
-        n[1] == n[2] == N || error("basis matrix must be square ",
-                                   N, " by ", N, " matrix")
+    function Vectorspace{T}(b::Vector{T}) where {T}
+        # TODO: check for linear independence of b
 
-        new(basismatrix)
+        d = size(b)[1]
+        d > 0 || error("invalid generated identity basis")
+        new(b, d)
     end
 end
 
-Vectorspace(basismatrix) =
-    Vectorspace{eltype(basismatrix), size(basismatrix)[1]}(basismatrix)
-
+Vectorspace(b) = Vectorspace{eltype(b)}(b)
 
 struct Subspace
     of::Vectorspace
@@ -39,7 +40,7 @@ identityvector(j::Integer, n::Integer, t::Type{T}) where {T<:Number} =
     identityvector(j, n, Vector{t})
 identityvector(j::Integer, n::Integer) = identityvector(j, n, Vector{Float64})
 
-identitybasis(n::Integer, t::Type{T}) where {T<:Vector} = n > 0 ?
+identitybasis(n::Integer, t::Type{T}) where {T<:Union{Vector, Number}} = n > 0 ?
     [identityvector(i, n, t) for i = 1:n] :
     error("`n` must be greater than 0")
 identitybasis(n, t::Type{T}) where {T<:Matrix} = n > 0 ?
