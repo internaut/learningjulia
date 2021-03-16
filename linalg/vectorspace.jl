@@ -48,9 +48,5 @@ identitybasis(n, t::Type{T}) where {T<:Matrix} = n > 0 ?
     error("`n` must be greater than 0")
 identitybasis(n) = identitybasis(n, Vector{Float64})
 
-identitymatrix(n, t::Type{T}) where {T} =
-    [convert(t, i == j) for i = 1:n, j = 1:n]
-identitymatrix(n) = identitymatrix(n, Float64)
-
 
 end
