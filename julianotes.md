@@ -130,6 +130,10 @@ end
 - strings *only* with `"foo"`
 - multiline strings via `""" ... """`
 
+### Floats
+
+- `isapprox(a, b)` checks whether `a` and `b` are approx. equal (like `isclose()` in Python)
+
 ### Composite types: structs
 
 - introduce new type consisting of fields
@@ -212,6 +216,15 @@ julia> [[1 2 3], [4 5 6]]
 - `eltype(arr)` gives element type
 - create new empty array with undefined values: `Array{T}(undef, N1, N2, ...)` where `T` is element type and `Nx` are number of elements along each axis
 - most operations that work on scalar values work on arrays of same dimensions in element-wise fashion (e.g. `arr1 + arr2` performs element-wise addition)
+- `append!(arr, newelems)` unpacks all elements in `newelems` and appends them one by one to `arr` (like `list.extend` in Python)
+- `push!(arr, newelem)` adds `newelem` to the end of vector `arr` (like `list.append` in Python)
+
+#### Broadcasting
+
+- not all operations automatically vectorized (like in R): `![false, true]` does not work!
+- `broadcast(op, arr1 [, arr2])` applies `op` to each element in vector `arr1` or applies broadcasting for operation `op` between `arr1` and `arr2`
+- example: `broadcast(!, [false, true])`
+- many functions have "broadcast" variant indicated by "." at end of function name, e.g. `isapprox.([0, 0.001], 0)`
 
 #### Indexing
 

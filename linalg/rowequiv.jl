@@ -51,8 +51,46 @@ function rowadd_matrix(n::Integer, i::Integer, j::Integer, s::Number,
 end
 
 
-function reducedechelon(m::Matrix, return_operations::Bool=false)
+function reducedechelon(mat::Matrix,
+                        return_rank::Bool=false,
+                        return_operations::Bool=false)
+    m, n = size(mat)     # rows by cols
+    type = eltype(mat)
+    mat_ = mat
 
+    if return_operations
+        op = Vector{Matrix{type}}()             # elementary matrices
+    end
+
+    r = 0          # current rank
+    for t in 1:n   # iterate through columns
+        # values in current column below current rank
+        below = mat_[(r+1):m,t]]
+        if !all(isapprox.(below, 0))  # there is a nonzero element in the rest of the column
+            if isapprox(below[1], 0)  # element at rank position in current column is zero
+                # i is index for first nonzero element
+                i = r + findfirst(broadcast(!, isapprox.(below, 0)))[1]
+
+                # swap current rank row with nonzero row
+                swapmat = swaprow_matrix(m, i, r+1, type)
+                mat_ = swapmat * mat_
+
+                if return_operations
+                    push!(op, swapmat)
+                end
+            end
+
+            # values in current column
+            col = mat_[:, t]
+
+            # TODO: scale current rank row by col[r+1]^-1
+            col[r+1]
+            # TODO: bring all other values to zero in this column
+
+            r += 1   # increase rank
+        end
+
+    end
 end
 
 end
