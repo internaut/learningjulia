@@ -222,9 +222,11 @@ julia> [[1 2 3], [4 5 6]]
 #### Broadcasting
 
 - not all operations automatically vectorized (like in R): `![false, true]` does not work!
-- `broadcast(op, arr1 [, arr2])` applies `op` to each element in vector `arr1` or applies broadcasting for operation `op` between `arr1` and `arr2`
+- `broadcast(op, arr1 [, arr2])` applies `op` to each element in
+ vector `arr1` or applies broadcasting for operation `op` between `arr1` and `arr2`
 - example: `broadcast(!, [false, true])`
-- many functions have "broadcast" variant indicated by "." at end of function name, e.g. `isapprox.([0, 0.001], 0)`
+- short form: `.![false, true]`
+- many functions have "broadcast" variant indicated by "." at end of function name, e.g. `isapprox.([0, 0.001], 0)` or at front of operator (e.g. `.!`)
 
 #### Indexing
 
@@ -236,6 +238,7 @@ julia> [[1 2 3], [4 5 6]]
 - multidimensional indexing:
     - `mat[[1, 3], [2]]` selects column 2 in rows 1 and 3 of `mat`
     - to take all elements along axis use `:`
+- `findall(x)` gives indices of `true` occurrences in `x` (like `np.where()` in Python or `which` in R)
 
 #### Iteration
 
@@ -289,6 +292,26 @@ f(n, t::Type{T}) where {T<:Matrix} = repeat([convert(eltype(t), 0)], n^2)
 ```
 
 - the first method handles vectors (e.g. `f(2, Vector{Int8})`), the second matrices (e.g. `f(2, Matrix{Int8})`) and generates the output vector either of size `n` or `n^2` and with an element type depending on element type of the vector/matrix
+
+### Function arguments
+
+- keyword arguments must be separated by semicolon when defined, e.g.: `function plot(x, y; style="solid") ... end`
+- when called, no need to use semicolon!
+
+### Anonymous functions and pipes
+
+- anonymous function via `->`, e.g `x -> x^2`
+- can be used for function application, e.g. via `map()`: `map(x -> x^2, [1, 2, 3])` or with pipes
+
+- pipes can be used via `|>`
+- left of pipe is input data, right of pipe is function (*not* function call), e.g.: `[1, 2, 3] |> sum |> inv`
+- use anonymous function to pass arguments at arbitrary positions or pass additional arguments, e.g.:
+
+```
+.!isapprox.([1 0 0 2 -1 0], 0) |>   # nonzero elements
+    findall |>                      # indices of them
+    x->setdiff(x, [1])              # use all but index "1"
+```
 
 ## Randomness
 
