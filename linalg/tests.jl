@@ -61,4 +61,34 @@ end
 
         @test isapprox(reducedechelon(mat), expected)
     end
+
+    @testset "random 1xN  or Nx1 matrices" for i = 1:100
+        t = rand([Float64, Rational])
+        n = rand(1:100)
+        rowmat = rand(Bool)
+        shape = rowmat ? (1, n) : (n, 1)
+        mat = t == Float64 ?
+              rand(Float64, shape) :
+              reshape([rand(-10:10)//rand(1:10) for i in 1:n], shape)
+
+        if all(isapprox.(mat, 0))
+            expected = zeros(t, shape)
+        else
+            nonzero_idx = findfirst(.!isapprox.(mat, 0))[convert(Int, rowmat)+1]
+            if rowmat
+                expected = hcat(
+                    zeros(t, (1, nonzero_idx-1)),
+                    [1],
+                    transpose(mat[1, nonzero_idx+1:end]
+                              * inv(mat[1, nonzero_idx])))
+            else
+                expected = vcat(
+                    zeros(t, (nonzero_idx-1, 1)),
+                    [1],
+                    mat[nonzero_idx+1:end, 1] * inv(mat[nonzero_idx, 1]))
+            end
+        end
+
+        @test isapprox(reducedechelon(mat), expected)
+    end
 end
