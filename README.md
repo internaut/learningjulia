@@ -10,7 +10,7 @@ I also keep notes on what I learn about JuliaLang especially regarding differenc
 
 ## Requirements
 
-- Julia 1.3 with the following packages:
+- Julia 1.6 with the following packages:
     - [Cairo](https://github.com/JuliaGraphics/Cairo.jl/)
     - [IJulia](https://github.com/JuliaLang/IJulia.jl) (for Jupyter notebooks)
 
@@ -20,6 +20,10 @@ Each small project lives in its own folder. Common utilities, that are used in a
 
 - `gcd`: simple and extended [Euclidian algorithm](https://en.wikipedia.org/wiki/Euclidean_algorithm) to find the greatest common divisor of two integers
 - `residueclasses`: code to represent and visualize [residue or congruence classes](https://en.wikipedia.org/wiki/Modular_arithmetic#Congruence_classes) in modular arithmetic
+- `linalg`: some concepts from linear algebra, such as:
+  - Gaussian elimination and reduced echelon form
+  - matrix rank
+  - matrix inverse
 
 Each project also contains automated tests in a `tests.jl` file.
 
@@ -27,8 +31,8 @@ Each project also contains automated tests in a `tests.jl` file.
 
 For most projects, I provide a [Jupyter notebook](https://jupyter.org/) that shows how to use the implemented functions and types:
 
-- [`residueclasses.ipynb`](residueclasses.ipynb)
-
+- [`residueclasses.ipynb`](residueclasses.ipynb): Residue classes
+- [`rowequiv.ipynb`](rowequiv.ipynb): Elementary matrices, Gaussian elimination, reduced echelon form and row equivalence
 
 ## License
 
