@@ -23,10 +23,12 @@ using .RowEquivalence
     calc_rnf, mat_rank = reducedechelon(mat_float, return_rank=true)
     @test isapprox(calc_rnf, rnf)
     @test mat_rank == 3
+    @test rank(mat_float) == mat_rank
 
     calc_rnf, mat_rank = reducedechelon(mat_rational, return_rank=true)
     @test isapprox(calc_rnf, rnf)
     @test mat_rank == 3
+    @test rank(mat_rational) == mat_rank
 
     calc_rnf, ops = reducedechelon(mat_float, return_operations=true)
     @test isapprox(calc_rnf, rnf)
@@ -85,10 +87,47 @@ end
                 expected = vcat(
                     zeros(t, (nonzero_idx-1, 1)),
                     [1],
-                    mat[nonzero_idx+1:end, 1] * inv(mat[nonzero_idx, 1]))
+                    zeros(t, (n-nonzero_idx, 1)))
             end
         end
 
         @test isapprox(reducedechelon(mat), expected)
+    end
+end
+
+
+@testset "reducedechelon rank, hasinv and inv" begin
+    @testset "random matrices" for i = 1:100
+        n = rand(1:10)
+        m = rand(1:10)
+        shape = (n, m)
+        t = rand([Float64, Rational])
+        mat = t == Float64 ?
+              rand(Float64, shape) :
+              reshape([rand(-10:10)//rand(1:10) for i in 1:n*m], shape)
+        r = rank(mat)
+        @test 0 <= r <= n
+        @test r == reducedechelon(mat, return_rank=true)[2]
+        invertible = hasinv(mat)
+        @test invertible == (n == m && r == n)
+    end
+
+    @testset "random square matrices" for i = 1:100
+        n = rand(1:10)
+        shape = (n, n)
+        t = rand([Float64, Rational])
+        mat = t == Float64 ?
+              rand(Float64, shape) :
+              reshape([rand(-10:10)//rand(1:10) for i in 1:n^2], shape)
+
+        if hasinv(mat)
+            invmat = inv(mat)
+            imat = identitymatrix(n, t)
+
+            @test size(invmat) == (n, n)
+            @test eltype(invmat) <: t
+            @test isapprox(mat * invmat, imat)
+            @test isapprox(invmat * mat, imat)
+        end
     end
 end

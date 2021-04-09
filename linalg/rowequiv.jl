@@ -62,6 +62,10 @@ transformations performed to arrive at the REF.
 To be able to calculate the REF, it is necessary that all elements in `mat`
 other than zero are invertible. In other words, `mat` must be defined
 over an integral domain.
+
+Optionally return matrix rank (number of pivot elements) when `return_rank=true`
+and/or vector of elementary matrices used in the elimination steps when
+`return_operations=true`.
 """
 function reducedechelon(mat::Matrix;
                         return_rank::Bool=false,
@@ -136,14 +140,29 @@ function reducedechelon(mat::Matrix;
     end
 end
 
+"""
+Calculate the reduced echelon form (REF) of m×n matrix `mat` using Gaussian
+elimination as in `reducedechelon`, but return vector of matrices, where each
+element in this vector represents one elimination step.
 
-function reducedechelon_steps(mat::Matrix)
-    # TODO: check and correct this
-    rnf, op = reducedechelon(mat, return_operations=true)
+Optionally return vector of elementary matrices used in the elimination steps
+when `return_operations=true`.
+"""
+function reducedechelon_steps(mat::Matrix; return_operations::Bool=false)
+    ref, ops = reducedechelon(mat, return_operations=true)
 
-    steps = cumprod(op)
-    push!(steps, mat)
-    reverse(steps)
+    # there's probably a way to directly allocate the needed space since
+    # we know the number of step matrices needed and their size
+    steps = Vector{Matrix{eltype(mat)}}()
+    cur_step = mat
+    for op in ops
+        cur_step = op * cur_step
+        push!(steps, cur_step)
+    end
+
+    isapprox(steps[end], ref) || error("last step result should equal REF")
+
+    return_operations ? (steps, ops) : steps
 end
 
 
@@ -171,7 +190,7 @@ function inv(mat::Matrix)
 
     _, r, op = reducedechelon(mat, return_rank=true, return_operations=true)
     rank(mat) == m || error("`mat` is not invertible")
-    prod(reverse(op))
+    convert(Matrix{eltype(mat)}, prod(reverse(op)))
 end
 
 end
