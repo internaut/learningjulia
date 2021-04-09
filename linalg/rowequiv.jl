@@ -3,7 +3,9 @@ module RowEquivalence
 include("common.jl")
 
 export identitymatrix, swaprow_matrix, multrow_matrix, rowadd_matrix,
-    reducedechelon
+    reducedechelon, reducedechelon_steps, rank, hasinv, inv
+
+import Base: inv
 
 """
 Generate elementary n×n matrix of type `t` that swaps rows `i` and `j`.
@@ -132,6 +134,44 @@ function reducedechelon(mat::Matrix;
     else
         return mat
     end
+end
+
+
+function reducedechelon_steps(mat::Matrix)
+    # TODO: check and correct this
+    rnf, op = reducedechelon(mat, return_operations=true)
+
+    steps = cumprod(op)
+    push!(steps, mat)
+    reverse(steps)
+end
+
+
+"""
+Matrix rank of `mat` deduced from reduced echelon form.
+"""
+rank(mat::Matrix)::Int = reducedechelon(mat, return_rank=true)[2]
+
+"""
+Returns true if matrix `mat` has inverse, i.e. if it is a square matrix with
+full rank, otherwise returns false.
+"""
+function hasinv(mat::Matrix)::Bool
+    m, n = size(mat)
+    m == n && rank(mat) == m
+end
+
+"""
+Calculate the inverse of an invertible square matrix `mat`.
+Overwrites `Base.inv`.
+"""
+function inv(mat::Matrix)
+    m, n = size(mat)
+    m == n || error("`mat` must be square matrix")
+
+    _, r, op = reducedechelon(mat, return_rank=true, return_operations=true)
+    rank(mat) == m || error("`mat` is not invertible")
+    prod(reverse(op))
 end
 
 end
