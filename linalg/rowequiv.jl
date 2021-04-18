@@ -2,7 +2,7 @@ module RowEquivalence
 
 include("common.jl")
 
-export identitymatrix, swaprow_matrix, multrow_matrix, rowadd_matrix,
+export identitymatrix, swapop_matrix, multop_matrix, addop_matrix,
     reducedechelon, reducedechelon_steps, rank, hasinv, inv
 
 import Base: inv
@@ -10,7 +10,7 @@ import Base: inv
 """
 Generate elementary n×n matrix of type `t` that swaps rows `i` and `j`.
 """
-function swaprow_matrix(n::Integer, i::Integer, j::Integer, t::Type=Float64)
+function swapop_matrix(n::Integer, i::Integer, j::Integer, t::Type=Float64)
     n > 0 || error("`n` must be greater than 0")
     0 < i <= n || error("`i` must be in range [1, ", n , "]")
     0 < j <= n || error("`j` must be in range [1, ", n , "]")
@@ -28,7 +28,7 @@ end
 Generate elementary n×n matrix of type `t` that multiplies row `i` by non-zero
 scalar `r`.
 """
-function multrow_matrix(n::Integer, i::Integer, r::Number, t::Type=Float64)
+function multop_matrix(n::Integer, i::Integer, r::Number, t::Type=Float64)
     n > 0 || error("`n` must be greater than 0")
     0 < i <= n || error("`i` must be in range [1, ", n , "]")
     r != 0 || error("`r` must be non-zero")
@@ -42,7 +42,7 @@ end
 Generate elementary n×n matrix of type `t` that multiplies row `j` with scalar
 `s` and adds this to row `i`.
 """
-function rowadd_matrix(n::Integer, i::Integer, j::Integer, s::Number,
+function addop_matrix(n::Integer, i::Integer, j::Integer, s::Number,
                        t::Type=Float64)
     n > 0 || error("`n` must be greater than 0")
     0 < i <= n || error("`i` must be in range [1, ", n , "]")
@@ -89,7 +89,7 @@ function reducedechelon(mat::Matrix;
                 i = r + (.!isapprox.(below, 0) |> findfirst)
 
                 # swap current rank row with nonzero row
-                swapmat = swaprow_matrix(m, i, r+1, type)
+                swapmat = swapop_matrix(m, i, r+1, type)
                 mat = swapmat * mat
 
                 if return_operations
@@ -102,7 +102,7 @@ function reducedechelon(mat::Matrix;
 
             # scale current rank row by col[r+1]^-1
             if !isapprox(val, 1)
-                scalemat = multrow_matrix(m, r+1, inv(val), type)
+                scalemat = multop_matrix(m, r+1, inv(val), type)
                 mat = scalemat * mat
 
                 if return_operations
@@ -117,7 +117,7 @@ function reducedechelon(mat::Matrix;
                 x->setdiff(x, [r+1])
 
             for (i, val) in zip(nonzerorows, col[nonzerorows])
-                subtract_mat = rowadd_matrix(m, i, r+1, -val, type)
+                subtract_mat = addop_matrix(m, i, r+1, -val, type)
                 mat = subtract_mat * mat
 
                 if return_operations
